@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Magia Barber Club | Florianópolis</title>
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjQzVBMDI4IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iNiIgY3k9IjYiIHI9IjMiLz48cGF0aCBkPSJNOC4xMiA4LjEyIDEyIDEyIi8+PHBhdGggZD0iTTIwIDQgOC4xMiAxNS44OCIvPjxjaXJjbGUgY3g9IjYiIGN5PSIxOCIgcj0iMyIvPjxwYXRoIGQ9Ik0xNC44IDE0LjggMjAgMjAiLz48cGF0aCBkPSJNMTIgMTIgMTYgOCIvPjwvc3ZnPg==" />
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -471,34 +474,51 @@
                     <p class="text-neutral-400 text-sm">Nossa IA analisa seu perfil e sugere o melhor estilo para você dominar Floripa.</p>
                 </div>
 
-                <form onsubmit="event.preventDefault(); alert('Em breve! Esta funcionalidade estará disponível na versão completa.');" class="space-y-4">
+                <form id="stylist-form" class="space-y-4">
                     <div>
                         <label class="block text-sm font-medium text-gold-500 mb-1">Formato do Rosto</label>
-                        <select class="w-full bg-neutral-950 border border-neutral-700 rounded p-3 text-white focus:border-gold-500 focus:outline-none">
+                        <select id="face-shape" required class="w-full bg-neutral-950 border border-neutral-700 rounded p-3 text-white focus:border-gold-500 focus:outline-none">
                             <option value="">Selecione...</option>
-                            <option>Oval</option>
-                            <option>Redondo</option>
-                            <option>Quadrado</option>
+                            <option value="Oval">Oval</option>
+                            <option value="Redondo">Redondo</option>
+                            <option value="Quadrado">Quadrado</option>
+                            <option value="Coração">Coração</option>
+                            <option value="Diamante">Diamante</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gold-500 mb-1">Tipo de Cabelo</label>
-                        <select class="w-full bg-neutral-950 border border-neutral-700 rounded p-3 text-white focus:border-gold-500 focus:outline-none">
+                        <select id="hair-type" required class="w-full bg-neutral-950 border border-neutral-700 rounded p-3 text-white focus:border-gold-500 focus:outline-none">
                             <option value="">Selecione...</option>
-                            <option>Liso</option>
-                            <option>Ondulado</option>
-                            <option>Crespo</option>
+                            <option value="Liso">Liso</option>
+                            <option value="Ondulado">Ondulado</option>
+                            <option value="Cacheado">Cacheado</option>
+                            <option value="Crespo">Crespo</option>
                         </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gold-500 mb-1">Qual sua Vibe?</label>
-                        <input type="text" placeholder="Ex: Clássico, Moderno, Executivo..." class="w-full bg-neutral-950 border border-neutral-700 rounded p-3 text-white focus:border-gold-500 focus:outline-none" />
+                        <input type="text" id="vibe" required placeholder="Ex: Clássico, Moderno, Executivo..." class="w-full bg-neutral-950 border border-neutral-700 rounded p-3 text-white focus:border-gold-500 focus:outline-none" />
                     </div>
 
-                    <button type="submit" class="w-full bg-gold-500 text-neutral-950 hover:bg-gold-400 px-6 py-3 font-bold uppercase text-sm transition-all mt-6">
-                        Consultar Estilo
+                    <button type="submit" id="submit-btn" class="w-full bg-gold-500 text-neutral-950 hover:bg-gold-400 px-6 py-3 font-bold uppercase text-sm transition-all mt-6 flex items-center justify-center gap-2">
+                        <span id="btn-text">Consultar Estilo</span>
+                        <div id="loader" class="hidden w-4 h-4 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin"></div>
                     </button>
                 </form>
+
+                <div id="stylist-result" class="hidden mt-8 p-6 bg-neutral-800 border border-gold-500/20 rounded-lg animate-fade-in">
+                    <div class="flex items-center gap-2 text-gold-500 mb-4">
+                        <i data-lucide="award" class="w-5 h-5"></i>
+                        <h5 class="font-serif font-bold uppercase tracking-wider">Recomendação Magia</h5>
+                    </div>
+                    <div id="result-text" class="text-neutral-300 text-sm leading-relaxed space-y-4">
+                        <!-- Result will be injected here -->
+                    </div>
+                    <button onclick="resetStylist()" class="mt-6 text-xs text-neutral-500 hover:text-gold-500 uppercase tracking-widest transition-colors">
+                        Nova Consulta
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -509,7 +529,16 @@
     </button>
 
     <!-- SCRIPTS -->
-    <script>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.sh/@google/genai"
+        }
+      }
+    </script>
+    <script type="module">
+        import { GoogleGenAI } from "@google/genai";
+
         // Initialize Icons
         lucide.createIcons();
 
@@ -564,6 +593,74 @@
         // Close modal on outside click
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
+        });
+
+        // AI Stylist Logic
+        const stylistForm = document.getElementById('stylist-form');
+        const stylistResult = document.getElementById('stylist-result');
+        const resultText = document.getElementById('result-text');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const loader = document.getElementById('loader');
+
+        window.resetStylist = function() {
+            stylistForm.classList.remove('hidden');
+            stylistResult.classList.add('hidden');
+            stylistForm.reset();
+        }
+
+        stylistForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const faceShape = document.getElementById('face-shape').value;
+            const hairType = document.getElementById('hair-type').value;
+            const vibe = document.getElementById('vibe').value;
+
+            // UI Loading State
+            submitBtn.disabled = true;
+            btnText.textContent = 'Analisando...';
+            loader.classList.remove('hidden');
+
+            try {
+                // Usando a chave de API fornecida pelo usuário como fallback
+                const MY_KEY = "AIzaSyC3TnLOQx6r_Lqry3n5WVmsK8Mz6m4OerU";
+                const finalKey = (typeof process !== 'undefined' && process.env.GEMINI_API_KEY) || MY_KEY;
+                
+                const genAI = new GoogleGenAI({ apiKey: finalKey });
+                
+                const prompt = `Você é um especialista em visagismo e barbeiro profissional da Magia Barber Club em Florianópolis.
+                Com base nas seguintes informações do cliente:
+                - Formato do Rosto: ${faceShape}
+                - Tipo de Cabelo: ${hairType}
+                - Vibe desejada: ${vibe}
+
+                Sugira o corte de cabelo e estilo de barba ideais. Explique por que essa escolha combina com as características dele. 
+                Seja encorajador, use um tom de "resenha de barbearia premium" e mencione o estilo de Floripa.
+                Responda em português, com EXATAMENTE 2 parágrafos curtos. Não use markdown complexo, apenas texto simples com quebras de linha.`;
+
+                const response = await genAI.models.generateContent({
+                    model: "gemini-3-flash-preview",
+                    contents: prompt,
+                });
+
+                const text = response.text;
+                
+                // Inject result
+                resultText.innerHTML = text.split('\n').map(p => p.trim() ? `<p>${p}</p>` : '').join('');
+                
+                // Switch UI
+                stylistForm.classList.add('hidden');
+                stylistResult.classList.remove('hidden');
+                lucide.createIcons();
+
+            } catch (error) {
+                console.error('Erro no AI Stylist:', error);
+                alert('Erro na conexão com a IA. Se estiver no AI Studio, tente recarregar. Se estiver local, verifique sua chave de API.');
+            } finally {
+                submitBtn.disabled = false;
+                btnText.textContent = 'Consultar Estilo';
+                loader.classList.add('hidden');
+            }
         });
     </script>
 </body>
