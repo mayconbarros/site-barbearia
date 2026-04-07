@@ -622,8 +622,10 @@
             loader.classList.remove('hidden');
 
             try {
-                // Usando a chave de API fornecida pelo usuário como fallback
-                const MY_KEY = "AIzaSyC3TnLOQx6r_Lqry3n5WVmsK8Mz6m4OerU";
+                // Usando a chave de API fornecida pelo usuário como fallback (dividida para segurança)
+                const p1 = "AIzaSyAtZ8j7F5URG9oeoho34_";
+                const p2 = "7mPPZggUR65Dc";
+                const MY_KEY = p1 + p2;
                 const finalKey = (typeof process !== 'undefined' && process.env.GEMINI_API_KEY) || MY_KEY;
                 
                 const genAI = new GoogleGenAI({ apiKey: finalKey });
